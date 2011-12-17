@@ -19,19 +19,25 @@ class baudot:
 
   # Set up the serial port
   def __init__( self, port ):
+    print "Setting up serial port"
     self.ser = serial.Serial(port=port, timeout=0.01)
+    print "Serial port set up!!!"
     portDev = self.ser.portstr
 
     # Set a custom baud rate
     # This means that when we ask for the rate 38400 bps,
     # we actually get the rate 45 bps.
     # see man setserial for more info
-    speedSuccess = subprocess.call( [ "setserial", portDev, "spd_cust", "divisor", "2560" ] )
+    #speedSuccess = subprocess.call( [ "setserial", portDev, "spd_cust", "divisor", "2560" ] )
 
-    if( speedSuccess != 0 ):
-      raise Exception( "Could not set serial port speed!" )
+    #if( speedSuccess != 0 ):
+    #  raise Exception( "Could not set serial port speed!" )
 
-    self.ser.setBaudrate( 38400 )
+    #self.ser.setBaudrate( 38400 )
+
+    # Newest pyserial can do custom baud rates on linux.
+    # Try that.
+    self.ser.baudrate = 45 
     # No parity, 2 stop bits, 5 data bits
     # Baudot is *actually* 1.5 stopbits but this is
     # close enough for science
@@ -39,8 +45,10 @@ class baudot:
     self.ser.setStopbits( 2 )
     self.ser.setByteSize( 5 )
 
+    print "Opening serial port"
     self.ser.open()
     self.ser.write( self.txmode )
+    print "Serial port opened!"
 
   # Take an ascii string and return Baudot equivalent.
   def a2b( self, aString ):

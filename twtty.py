@@ -5,8 +5,8 @@ import twitdriver
 from time import sleep
 import ConfigParser
 import signal
-import pickle
-import oauthtwitter
+#import pickle
+import twitter
 
 def mp( message ):
   print ''.join([ message, ' (' , str( len( message )), ')' ])
@@ -30,21 +30,30 @@ def main():
     #username = config.get( 'Twitter', 'username' )
     #password = config.get( 'Twitter', 'password' )
 
-    access_file = open( "access.pickle", "r" )
+    #access_file = open( "access.pickle", "r" )
 
-    access_token = pickle.load( access_file )
+    #access_token = pickle.load( access_file )
 
     debug = config.getboolean( 'General', 'debug' )
 
-    since_id = config.get( 'Twitter', 'since_id' )
+    since_id = int(config.get( 'Twitter', 'since_id' ))
 
     consumer_key = config.get( 'Twitter', 'consumer_key' )
 
     consumer_secret = config.get( 'Twitter', 'consumer_secret' )
+
+    access_key = config.get( 'Twitter', 'access_key' )
+
+    access_secret = config.get( 'Twitter', 'access_secret')
+
     
-    tw = twitdriver.TwitDriver( consumer_key, consumer_secret, access_token, since_id )
+    tw = twitdriver.TwitDriver( consumer_key, consumer_secret, access_key, access_secret, since_id )
+    print "blah"
+
+    print ''.join( ["Opening serial port ", serialport] )
 
     tty = baudottty.BaudotTTY( serialport )
+    print "Opened serial port"
     if(debug):
       tty.addlistener(mp)
       tw.addlistener(mp)

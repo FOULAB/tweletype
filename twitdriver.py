@@ -9,19 +9,20 @@ import unicodedata
 import re
 from htmlentitydefs import name2codepoint
 import pickle
-import oauthtwitter
+import twitter
 
 class TwitDriver(driver.Driver):
   #paramters:
   # login: twitter username
   # password: twitter password
   # since_id: only get tweets newer than the one with this ID
-  def __init__( self, consumer_key, consumer_secret, access_token, since_id='' ):
+  def __init__( self, consumer_key, consumer_secret, access_key, access_secret, since_id=None):
+    
     driver.Driver.__init__( self )
     
-    self.api = oauthtwitter.OAuthApi( consumer_key, consumer_secret , access_token)
+    self.api = twitter.Api( consumer_key, consumer_secret , access_key, access_secret)
     print self.api
-    self.twuser = self.api.GetUserInfo().screen_name
+    self.twuser = self.api.VerifyCredentials().screen_name
     print self.twuser
     self.twtlock = threading.Lock()
     print self.twtlock
@@ -35,8 +36,12 @@ class TwitDriver(driver.Driver):
     while 1:
       try:
         self.twtlock.acquire()
+
+        print ''.join(["Getting new replies since id ", str(self.since_id)])
         newreplies = self.api.GetReplies(since_id=self.since_id)
-        newtweets = self.api.GetFriendsTimeline(since_id=self.since_id, count=200)
+        print ''.join(["Getting friends timeline since id ", str(self.since_id)])
+        newtweets = self.api.GetFriendsTimeline(since_id=self.since_id, count=100)
+        print "got tweets."
         self.twtlock.release()
         #tweets are listed newest to oldest, but we want the most recent tweets
         #printed first, so we reverse the list.
